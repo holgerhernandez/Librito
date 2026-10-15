@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Nuestro primer año — Holger & Byanka</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    height: 100%;
+    background: linear-gradient(135deg, #2c1e22 0%, #3d2a30 50%, #2c1e22 100%);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    color: #3d2c2e;
+    overflow: hidden;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 36px 0 100px;
+  }
+
+  .header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    text-align: center;
+    padding: 10px;
+    padding-top: max(10px, env(safe-area-inset-top));
+    color: #e8c4c8;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.7;
+    z-index: 50;
+    pointer-events: none;
+  }
+
+  .book-wrap {
+    width: 100%;
+    max-width: 400px;
+    height: calc(100vh - 140px);
+    height: calc(100dvh - 140px);
+    position: relative;
+    margin: 0 auto;
+  }
+
+  .page {
+    position: absolute;
+    inset: 0;
+    background: #fdf6f0;
+    border-radius: 6px 14px 14px 6px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+
+  .page.active {
+    display: flex;
+  }
+
+  .page-inner {
+    flex: 1;
+    min-height: 0;
+    padding: 26px 22px 28px 30px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+  }
+
+  .page.cover {
+    background: linear-gradient(160deg, #f8e8ee 0%, #fdf6f0 40%, #f5e6ea 100%);
+  }
+
+  .page.cover .page-inner {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 32px;
+    overflow: hidden;
+  }
+
+  .cover-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.1rem;
+    font-weight: 700;
+    color: #9b3b5a;
+    line-height: 1.2;
+  }
+
+  .cover-line {
+    width: 56px;
+    height: 1.5px;
+    background: #d4a5a5;
+    margin: 16px auto;
+  }
+
+  .cover-names {
+    font-size: 1.08rem;
+    font-style: italic;
+    color: #5a4548;
+    line-height: 1.6;
+  }
+
+  .cover-date {
+    margin-top: 22px;
+    font-size: 0.88rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #9b3b5a;
+    opacity: 0.85;
+  }
+
+  .cover-heart {
+    font-size: 1.25rem;
+    color: #c45c7a;
+    margin-top: 18px;
+    opacity: 0.75;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #9b3b5a;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+
+  .section-line {
+    width: 36px;
+    height: 1px;
+    background: #d4a5a5;
+    margin: 0 auto 14px;
+  }
+
+  .body-text {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #3d2c2e;
+    text-align: justify;
+    margin-bottom: 12px;
+  }
+
+  .body-text.center { text-align: center; }
+
+  .closing-sign {
+    margin-top: 18px;
+    text-align: right;
+    font-style: italic;
+    color: #9b3b5a;
+    font-size: 1.05rem;
+    line-height: 1.5;
+  }
+
+  .nav {
+    position: fixed;
+    bottom: 0;
+    left: 0; right: 0;
+    padding: 12px 16px;
+    padding-bottom: max(14px, env(safe-area-inset-bottom));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 22px;
+    z-index: 100;
+    background: linear-gradient(to top, rgba(44,30,34,0.95) 60%, transparent);
+  }
+
+  .nav-btn {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 1.5px solid #e8c4c8;
+    background: rgba(44, 30, 34, 0.85);
+    color: #e8c4c8;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-appearance: none;
+    appearance: none;
+    touch-action: manipulation;
+  }
+
+  .nav-btn:disabled {
+    opacity: 0.28;
+  }
+
+  .nav-btn:active:not(:disabled) {
+    background: rgba(232, 196, 200, 0.3);
+    transform: scale(0.95);
+  }
+
+  .page-indicator {
+    color: #e8c4c8;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    min-width: 64px;
+    text-align: center;
+    opacity: 0.9;
+  }
+
+  .hint {
+    position: fixed;
+    bottom: 78px;
+    left: 0; right: 0;
+    text-align: center;
+    color: #e8c4c8;
+    font-size: 0.72rem;
+    opacity: 0.5;
+    pointer-events: none;
+    transition: opacity 0.4s;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .hint.hide { opacity: 0; }
+
+  @media (max-width: 400px) {
+    .page-inner { padding: 22px 16px 24px 24px; }
+    .cover-title { font-size: 1.85rem; }
+    .body-text { font-size: 0.96rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">Nuestro primer año</div>
+
+<div class="book-wrap" id="bookWrap">
+
+  <div class="page cover active" data-page="0">
+    <div class="page-inner">
+      <div class="cover-title">Nuestro<br>primer año</div>
+      <div class="cover-line"></div>
+      <div class="cover-names">
+        Holger Adrián Hernández García<br>&amp;<br>Byanka Torres Muñoz
+      </div>
+      <div class="cover-date">11 de octubre</div>
+      <div class="cover-heart">♥</div>
+    </div>
+  </div>
+
+  <div class="page" data-page="1">
+    <div class="page-inner">
+      <div class="section-title">Carta de apertura</div>
+      <div class="section-line"></div>
+      <p class="body-text">Si alguien me hubiese dicho aquel día en que coincidimos en el chat del grupo que nos convertiríamos en lo que hoy somos… jamás me lo habría creído.</p>
+      <p class="body-text">Fue tan… brutal.<br>La primera vez que caí en cuenta de hasta dónde habíamos llegado tú y yo, después de conocernos de forma tan casual y normal, se sintió como un balde de agua fría. Porque me di cuenta de que uno consigue el amor cuando menos lo espera, y cuando menos lo busca.</p>
+      <p class="body-text">Más allá de las circunstancias que nos rodean, de la distancia que a veces nos abruma y de lo pesados que pueden llegar a ser nuestros días por separado… aquí seguimos. Firmes. Y con todas las ganas del mundo de seguir juntitos.</p>
+    </div>
+  </div>
+
+  <div class="page" data-page="2">
+    <div class="page-inner">
+      <div class="section-title">Cómo empezó todo</div>
+      <div class="section-line"></div>
+      <p class="body-text">Nuestra historia parece un poco surrealista, para ser sincero.</p>
+      <p class="body-text">Todo comenzó con un juego. Había alianzas, y un grupo de conocidos creó una para coordinarse mejor. Para eso abrieron un grupo de WhatsApp… y ahí nos conocimos. Fue completamente casual, nada del otro mundo.</p>
+      <p class="body-text">Pero con el tiempo, tú y yo empezamos a hablar más. Poco a poco dejamos el juego de lado y nos centramos en nosotros. Hablábamos tanto como podíamos, y nos dimos cuenta de lo divertido que era pasar tiempo conversando el uno con el otro.</p>
+      <p class="body-text">Así fuimos ganando confianza.<br>Y con esa confianza llegó el gusto, la atracción… hasta que un día decidimos intentarlo. Al principio era solo juego y diversión, nada serio, por mutuo acuerdo.</p>
+      <p class="body-text">Y mira dónde estamos ahora.</p>
+    </div>
+  </div>
+
+  <div class="page" data-page="3">
+    <div class="page-inner">
+      <div class="section-title">Nuestros momentos favoritos</div>
+      <div class="section-line"></div>
+      <p class="body-text">Una vez, en la clínica, eran como las 3 de la mañana. Estábamos en videollamada y tú tenías mucho sueño. Se me ocurrió una “brillante” idea… y me puse a hacerte un leve striptease. Casualidad o no, ahí sí te despertaste del todo. Jajaja. Todavía me río de eso.</p>
+      <p class="body-text">Cuando trabajabas en Gabame surgió una foto que hasta hoy es de mis favoritas. No porque sea la más bella o donde más resaltes, sino porque guarda un significado inmenso para mí. Tenías un día pesado y yo, queriendo hacerte sentir mejor, empecé a contarte chistes… pero resultó ser todo lo contrario: te irritaste más. Me sentí mal. Y a pesar de que estabas cansada, irritada y trabajando, me enviaste una fotito buscando hacerme sentir mejor. Aunque a ti no te gusta esa foto, para mí es una de las más especiales.</p>
+    </div>
+  </div>
+
+  <div class="page" data-page="4">
+    <div class="page-inner">
+      <div class="section-title">Nuestros momentos favoritos</div>
+      <div class="section-line"></div>
+      <p class="body-text">Nuestros juegos de “verdad o verdad” también se merecen un lugar aquí. A veces tienen consecuencias… pero están divertidos. Jajaja.</p>
+      <p class="body-text">Y extraño esos tiempos en los que te desvelabas conmigo. Son momentos que atesoro y guardo con mucho cariño.<br>(Ya sé que ahora es la edad la que te da sueño… jajajaja mentiras, amor).</p>
+    </div>
+  </div>
+
+  <div class="page" data-page="5">
+    <div class="page-inner">
+      <div class="section-title">Las cosas que más me gustan de ti</div>
+      <div class="section-line"></div>
+      <p class="body-text">Amo que tienes una personalidad que es contagiosa y alegre. Eres capaz de romper momentos de tensión y transmitir alegría y espontaneidad.</p>
+      <p class="body-text">Amo tus ojos y tu cabello, son 2 aspectos de tu cuerpo que son de mis favoritos sin duda alguna. Tus ojos porque brillan y me sonríen. Tu cabello porque se ve tan bonitooooo y quisiera tenerlo en mis manos y acariciarlo.</p>
+      <p class="body-text">Tus... pechos y nalgas, son... grrrrrr, son tan... ñaaaaammmmm.<br>Soy fan de tu cuerpo, de tus curvas... yo sin duda adoro tu cuerpo como si fuese mi dios y mi religión, porque de verdad... eres increíblemente sexy, divina, y espectacular... No hay parte mala en tu cuerpo. Yo muero por algún día tener ese hermoso y sensual cuerpo en mis manos. Te lo juro por Dios, que jamás dejaré de sentir calor al ver tu cuerpo, y aún más teniéndolo cerca.</p>
+    </div>
+  </div>
+
+  <div class="page" data-page="6">
+    <div class="page-inner">
+      <div class="section-title">Las cosas que más me gustan de ti</div>
+      <div class="section-line"></div>
+      <p class="body-text">Tu carita, dios miooooo eres demasiado bonitaaaaa, tienes una de las caras más bonitas que he visto, y quisiera acariciarla y darle muchos pero muchos besitosssss.</p>
+      <p class="body-text">Tu corazoncito es muy bonito, y le da calidez al mío.</p>
+      <p class="body-text">Estoy demasiado enamorado de ti, y quisiera que nuestro amor jamás conozca su fin 🥹</p>
+    </div>
+  </div>
+
+  <div class="page" data-page="7">
+    <div class="page-inner">
+      <div class="section-title">Lo que he aprendido este año a tu lado</div>
+      <div class="section-line"></div>
+      <p class="body-text">Como bien sabes, ya tuve experiencias a distancia, y aunque son bonitas, son muy complicadas. Y claramente contigo también, pero no por nada ya cumplimos un año. Hemos sabido sortear los momentos complicados, y salido adelante sin importar qué.</p>
+      <p class="body-text">He aprendido a sentirme mejor hombre, mejor persona, y a entender que hay que estar en pro de mejorar para que la relación solo vaya a mejor.</p>
+      <p class="body-text">Tengo muchos miedos e inseguridades, cosas que ni te imaginas. Tengo un pavor terrible de pensar en que esto algún día llegue a acabarse. Pero trato de no pensar en ello, porque es mejor solo enfocarse en lo bueno, y dejar que las cosas malas no vengan a mi cabeza.</p>
+      <p class="body-text">He aprendido a sentirme amado.<br>He aprendido a amar bien bonito.<br>Y aunque siempre lo doy todo, es la primera vez en la que me esfuerzo mucho más en mejorarme a mí mismo como persona por el bien de los dos.</p>
+    </div>
+  </div>
+
+  <div class="page" data-page="8">
+    <div class="page-inner">
+      <div class="section-title">Promesas y deseos para el futuro</div>
+      <div class="section-line"></div>
+      <p class="body-text">Prometo intentar pelear lo menos contigo, discutir lo menos posible contigo, e intentar que los momentos malos sean muy pocos o casi nulos.</p>
+      <p class="body-text">Deseo toda una vida contigo, conformar una familia contigo, y descubrir las mil formas que tiene el amor de hacernos felices.</p>
+      <p class="body-text">Deseo vivir tantas cosas contigo: bailar, hacer el amor, cenar juntos, salir a citas, comernos vivos, arruncharnos en la camita y abrazarnos mientras llueve y hace frío afuera, hacer planes improvisados… y tantas pero tantas cosas más contigo.</p>
+      <p class="body-text">Deseo enseñarte realmente lo bonito que hay en mi corazón para contigo.</p>
+      <p class="body-text">Y que seas feliz junto a mí…<br>ese es mi mayor deseo y anhelo.</p>
+    </div>
+  </div>
+
+  <div class="page" data-page="9">
+    <div class="page-inner">
+      <div class="section-title">Cierre</div>
+      <div class="section-line"></div>
+      <p class="body-text">Gracias por este primer año.<br>Gracias por quedarte, por pelear a mi lado, por hacerme sentir amado y por enseñarme a amar mejor.</p>
+      <p class="body-text">No sé qué nos depare el futuro, pero sí sé que quiero seguir escribiendo esta historia contigo… página por página, día a día.</p>
+      <p class="body-text center" style="margin-top: 14px;">Te amo, Byanka.<br>Con todo lo que soy.</p>
+      <p class="body-text">Y ojalá este sea solo el primero de muchos años juntos.</p>
+      <div class="closing-sign">Con todo mi corazón,<br>Holger</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="hint" id="hint">Usa las flechas o desliza para pasar página</div>
+
+<div class="nav">
+  <button class="nav-btn" id="prevBtn" type="button" aria-label="Anterior">‹</button>
+  <div class="page-indicator" id="indicator">1 / 10</div>
+  <button class="nav-btn" id="nextBtn" type="button" aria-label="Siguiente">›</button>
+</div>
+
+<script>
+(function () {
+  var pages = document.querySelectorAll('.page');
+  var total = pages.length;
+  var current = 0;
+  var startX = 0;
+  var startY = 0;
+  var tracking = false;
+
+  function showPage(index) {
+    if (index < 0 || index >= total) return;
+    pages[current].classList.remove('active');
+    current = index;
+    pages[current].classList.add('active');
+    // reset scroll of new page
+    var inner = pages[current].querySelector('.page-inner');
+    if (inner) inner.scrollTop = 0;
+    updateUI();
+  }
+
+  function updateUI() {
+    document.getElementById('indicator').textContent = (current + 1) + ' / ' + total;
+    document.getElementById('prevBtn').disabled = current === 0;
+    document.getElementById('nextBtn').disabled = current === total - 1;
+    if (current > 0) {
+      document.getElementById('hint').classList.add('hide');
+    }
+  }
+
+  function goNext() {
+    if (current < total - 1) showPage(current + 1);
+  }
+
+  function goPrev() {
+    if (current > 0) showPage(current - 1);
+  }
+
+  document.getElementById('nextBtn').addEventListener('click', function (e) {
+    e.preventDefault();
+    goNext();
+  });
+  document.getElementById('prevBtn').addEventListener('click', function (e) {
+    e.preventDefault();
+    goPrev();
+  });
+
+  // Simple swipe (iOS-friendly)
+  var wrap = document.getElementById('bookWrap');
+
+  wrap.addEventListener('touchstart', function (e) {
+    if (e.touches.length !== 1) return;
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    tracking = true;
+  }, { passive: true });
+
+  wrap.addEventListener('touchend', function (e) {
+    if (!tracking) return;
+    tracking = false;
+    var t = e.changedTouches[0];
+    var dx = t.clientX - startX;
+    var dy = t.clientY - startY;
+    // only horizontal swipes
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.3) {
+      if (dx < 0) goNext();
+      else goPrev();
+    }
+  }, { passive: true });
+
+  // Desktop mouse swipe optional
+  var mouseDown = false;
+  wrap.addEventListener('mousedown', function (e) {
+    startX = e.clientX;
+    startY = e.clientY;
+    mouseDown = true;
+  });
+  window.addEventListener('mouseup', function (e) {
+    if (!mouseDown) return;
+    mouseDown = false;
+    var dx = e.clientX - startX;
+    var dy = e.clientY - startY;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.3) {
+      if (dx < 0) goNext();
+      else goPrev();
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight' || e.key === ' ') {
+      e.preventDefault();
+      goNext();
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      goPrev();
+    }
+  });
+
+  updateUI();
+})();
+</script>
+</body>
+</html>
